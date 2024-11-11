@@ -19,9 +19,6 @@ get_subdomain_info() {
     # Use dig +short to get the IP address of the subdomain
     ip=$(dig +short "$subdomain.$domain")
 
-    # Debugging output to show raw result from dig
-    echo "DIG OUTPUT for $subdomain.$domain: $ip"  # This will show what dig returns
-
     if [ -z "$ip" ]; then
         # If no IP found, indicate that the subdomain is not pointing correctly
         echo "The subdomain $subdomain does not have an A record."
