@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-# This script configures domain zone DNS records to point to specific server IPs and displays the information about subdomains
+# script to config domain zone to point to load balancer
+# add more subdomains and display info about them
 
 domain=$1
 
