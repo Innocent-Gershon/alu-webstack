@@ -3,38 +3,12 @@
 # add more subdomains and display info about them
 
 domain=$1
-
-# Check if a subdomain is provided
 if [ "$#" -eq 2 ]; then
    sub=$2
 else
-   # Default list of subdomains to check
-   subdomains=("www" "lb-01" "web-01" "web-02")
+	sub=("www" "lb-01" "web-01" "web-02")
 fi
-
-# Function to query and display subdomain info
-get_subdomain_info() {
-    local subdomain=$1
-    local domain=$2
-    # Use dig +short to get the IP address of the subdomain
-    ip=$(dig +short "$subdomain.$domain")
-
-    if [ -z "$ip" ]; then
-        # If no IP found, indicate that the subdomain is not pointing correctly
-        echo "The subdomain $subdomain does not have an A record."
-    else
-        # Otherwise, print the result in the expected format
-        echo "The subdomain $subdomain is an A record and points to $ip"
-    fi
-}
-
-# If a specific subdomain is provided, check only that subdomain
-if [ -n "$sub" ]; then
-    get_subdomain_info "$sub" "$domain"
-else
-    # If no subdomain is provided, check all default subdomains
-    for subdomain in "${subdomains[@]}"; do
-        get_subdomain_info "$subdomain" "$domain"
-    done
-fi
-
+for subdomain in "${sub[@]}"; do
+    echo -n "The subdomain $subdomain"
+    dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n -1 | awk '{ print " is a " $4 " record and points to " $5}'
+done
