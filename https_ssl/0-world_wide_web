@@ -1,14 +1,44 @@
 #!/usr/bin/env bash
-# script to config domain zone to point to load balancer
-# add more subdomains and display info about them
+
+# script to configure domain zone to point to load balancer
+# and add more subdomains and display info about them
 
 domain=$1
+
+# Check if a subdomain is provided
 if [ "$#" -eq 2 ]; then
    sub=$2
 else
-	sub=("www" "lb-01" "web-01" "web-02")
+   # Default list of subdomains to check
+   subdomains=("www" "lb-01" "web-01" "web-02")
 fi
-for subdomain in "${sub[@]}"; do
-    echo -n "The subdomain $subdomain"
-    dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -n -1 | awk '{ print " is a " $4 " record and points to " $5}'
-done
+
+# Function to query and display subdomain info
+get_subdomain_info() {
+    local subdomain=$1
+    local domain=$2
+    # Use dig +short to get the IP address of the subdomain
+    ip=$(dig +short "$subdomain.$domain")
+
+    # Debugging output to show raw result from dig
+    echo "DIG OUTPUT for $subdomain.$domain: $ip"  # This will show what dig returns
+
+    if [ -z "$ip" ]; then
+        # If no IP found, indicate that the subdomain is not pointing correctly
+        echo "The subdomain $subdomain does not have an A record."
+    else
+        # Otherwise, print the result in the expected format
+        echo "The subdomain $subdomain is an A record and points to $ip"
+    fi
+}
+
+# If a specific subdomain is provided, check only that subdomain
+if [ -n "$sub" ]; then
+    get_subdomain_info "$sub" "$domain"
+else
+    # If no subdomain is provided, check all default subdomains
+    for subdomain in "${subdomains[@]}"; do
+        get_subdomain_info "$subdomain" "$domain"
+    done
+fi
+
